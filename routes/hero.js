@@ -10,7 +10,7 @@ let filename = '';
 const mystorage = multer.diskStorage(
     {
         destination: './upload',
-        filename:( req , file , cb )=>{
+        filename: (req, file, cb) => {
             let date = Date.now();
             //53453535345.jpg
             // image/png
@@ -18,130 +18,148 @@ const mystorage = multer.diskStorage(
             let fl = date + '.' + file.mimetype.split('/')[1];
             cb(null, fl);
             filename = fl;
-        } 
+        }
     }
 );
 
 const upload = multer({ storage: mystorage })
 
 // ajout avec upload
-router.post( '/create' , upload.any('image') , ( req , res )=>{
+router.post('/create', upload.any('image'), (req, res) => {
     let dataFromPostman = req.body;
-    let hero = new Hero( dataFromPostman );
+    let hero = new Hero(dataFromPostman);
     hero.image = filename;
     hero.save()
-          .then(
-              (savedHero)=>{
-                  filename = '';
-                  console.log(savedHero);
-                  res.send(savedHero);
-              }
-          )
-          .catch(
-              (error)=>{
-                  console.log(error);
-                  res.send(error)
-              }
-          )
-  } );
-  
-  //ajout sans upload
-  
+        .then(
+            (savedHero) => {
+                filename = '';
+                console.log(savedHero);
+                res.send(savedHero);
+            }
+        )
+        .catch(
+            (error) => {
+                console.log(error);
+                res.send(error)
+            }
+        )
+});
 
-router.post( '/ajout'  , ( req , res )=>{
+//ajout sans upload
+
+
+router.post('/ajout', (req, res) => {
     let dataFromPostman = req.body;
-    let hero = new Hero( dataFromPostman );
-  
-    hero.save()
-          .then(
-              (savedHero)=>{
-                 
-                  console.log(savedHero);
-                  res.send(savedHero);
-              }
-          )
-          .catch(
-              (error)=>{
-                  console.log(error);
-                  res.send(error)
-              }
-          )
-  } );
-  
-  
-  router.get( '/all' , (req, res)=>{
-     
-      Hero.find()
-          .then(
-              (allHeros)=>{
-                  res.send(allHeros);
-              }
-          )
-          .catch(
-              (error)=>{
-                  res.send(error);
-              }
-          )
-  
-  } )
-  
+    let hero = new Hero(dataFromPostman);
 
-  
-  router.get('/getbyid/:id' , (req, res)=>{
-  
-      let myid = req.params.id;
-  
-      Hero.findOne({ _id: myid })
-                  .then(
-                      (art)=>{
-                          res.send(art);
-                      }
-                  )
-                  .catch(
-                      (err)=>{
-                          res.send(err)
-                      }
-                  )
-  
-  })
-  
-  
-  router.delete( '/Delete/:id' , (req , res)=>{
-  
-       let id = req.params.id;
-       
-       Hero.findByIdAndDelete( { _id: id } )
-          .then(
-              (deletedHero)=>{
-                  res.send(deletedHero);
-              }
-          )
-          .catch(
-              (err)=>{
-                  res.send(err);
-              }
-          )
-  
-  } )
-  
-  router.put( '/update/:id' , (req , res)=>{
-      let id = req.params.id;
-      let newData = req.body;
-      Hero.findOneAndUpdate( 
-          { _id: id },
-          newData
-      ) .then(
-          (updatedHero)=>{
-              res.send(updatedHero)
-          }
-      )
-      .catch(
-          (err)=>{
-              res.send(err)
-          }
-  
-      )
-  } )
-  
+    hero.save()
+        .then(
+            (savedHero) => {
+
+                console.log(savedHero);
+                res.send(savedHero);
+            }
+        )
+        .catch(
+            (error) => {
+                console.log(error);
+                res.send(error)
+            }
+        )
+});
+
+
+router.get('/all', (req, res) => {
+
+    Hero.find()
+        .then(
+            (allHeros) => {
+                res.send(allHeros);
+            }
+        )
+        .catch(
+            (error) => {
+                res.send(error);
+            }
+        )
+
+})
+
+router.get('/search', (req, res) => {
+
+    let { heroName } = req.query
+
+    Hero.find({ name: { $regex: heroName, "$options": "i" } })
+        .then(
+            (allHeros) => {
+                res.send(allHeros);
+            }
+        )
+        .catch(
+            (error) => {
+                res.send(error);
+            }
+        )
+
+})
+
+
+
+router.get('/getbyid/:id', (req, res) => {
+
+    let myid = req.params.id;
+
+    Hero.findOne({ _id: myid })
+        .then(
+            (art) => {
+                res.send(art);
+            }
+        )
+        .catch(
+            (err) => {
+                res.send(err)
+            }
+        )
+
+})
+
+
+router.delete('/Delete/:id', (req, res) => {
+
+    let id = req.params.id;
+
+    Hero.findByIdAndDelete({ _id: id })
+        .then(
+            (deletedHero) => {
+                res.send(deletedHero);
+            }
+        )
+        .catch(
+            (err) => {
+                res.send(err);
+            }
+        )
+
+})
+
+router.put('/update/:id', (req, res) => {
+    let id = req.params.id;
+    let newData = req.body;
+    Hero.findOneAndUpdate(
+        { _id: id },
+        newData
+    ).then(
+        (updatedHero) => {
+            res.send(updatedHero)
+        }
+    )
+        .catch(
+            (err) => {
+                res.send(err)
+            }
+
+        )
+})
+
 
 module.exports = router;
