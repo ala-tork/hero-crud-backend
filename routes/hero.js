@@ -88,6 +88,7 @@ router.get('/all', (req, res) => {
 router.get('/search', (req, res) => {
 
     let { heroName } = req.query
+        //console.log(heroName);
 
     Hero.find({ name: { $regex: heroName, "$options": "i" } })
         .then(
